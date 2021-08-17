@@ -40,9 +40,6 @@ def reward_function(params) -> float:
 
     # Read input parameters
     all_wheels_on_track: bool = params['all_wheels_on_track']
-    track_width = params['track_width']
-    distance_from_center = params['distance_from_center']
-    track_width = params['track_width']
     speed = params['speed']
 
      # Read input variables
@@ -88,3 +85,8 @@ def reward_function(params) -> float:
     return float(reward)
 
 
+
+
+
+if __name__ == "__main__":
+  reward_function()
