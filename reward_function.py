@@ -9,7 +9,7 @@
 import math
 
 
-def reward_function(params):
+def reward_function(params) -> float:
     '''
     Example of rewarding the agent to follow center line
 

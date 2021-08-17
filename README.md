@@ -19,3 +19,24 @@ Tips
 
 Reward function parameters
 <https://docs.aws.amazon.com/deepracer/latest/developerquide/deepracer-reward-function-input.html>
+
+## Track
+
+Hot Rod Speedway
+
+## Action list
+
+Trying to narrow down actions.
+
+- not such big turns
+- slower when turning hard.
+
+![](docs/images/action-list-lmit.png)
+
+## Pytest
+
+using local env i already have setup.
+
+```shell
+pyenv activate idm-integration
+```
