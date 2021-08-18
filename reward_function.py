@@ -2,7 +2,7 @@
 # Example imports of available libraries
 #
 # import random
-# import numpy
+import numpy as np
 # import scipy
 # import shapely
 
@@ -101,11 +101,13 @@ def calc_reward_from_waypoint_vs_heading(closest_waypoints, heading: float, wayp
     local_reward = 1.0
     # Calculate the direction of the center line based on the closest waypoints
     # from https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html#reward-function-input-closest_waypoints
-    next_point = waypoints[closest_waypoints[1]]
+
+    next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints)
+
     prev_point = waypoints[closest_waypoints[0]]
 
     # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
-    track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
+    track_direction = math.atan2(next_avg_point[1] - prev_point[1], next_avg_point[0] - prev_point[0])
     # Convert to degree
     track_direction = math.degrees(track_direction)
 
@@ -120,3 +122,10 @@ def calc_reward_from_waypoint_vs_heading(closest_waypoints, heading: float, wayp
         local_reward = 0.5
 
     return direction_diff, local_reward
+
+
+def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints):
+    NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD = 5
+    next_few_points = np.array(waypoints[closest_waypoints[1]:NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD])
+    next_avg_point = np.average(next_few_points, axis=0)
+    return next_avg_point

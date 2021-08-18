@@ -51,6 +51,7 @@ so just turning to nearest waypoint isn't great, it bounces back and fourth on t
 so after 42 mins.
 
 so how to look ahead. also is the closest waypoint the next waypoint?
+is this whats causing fast slow, fast slow?
 
 also we are using heading but not the steering angle.
 
