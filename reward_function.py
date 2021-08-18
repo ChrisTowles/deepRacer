@@ -134,7 +134,7 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
 
 
 def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints):
-    NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD = 2
+    NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD = 3
     next_few_points = waypoints[closest_waypoints[1]:NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD]
 
     # took out due to numpy issue

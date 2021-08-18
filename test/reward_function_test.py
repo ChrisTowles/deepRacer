@@ -102,8 +102,8 @@ class TestRewardFunction:
         point: [float, float] = get_waypoint_look_ahead_average_point(closest_waypoints=params.closest_waypoints,
                                                                            waypoints=params.waypoints)
 
-        assert point[0] == 2.5
-        assert point[1] == 2.5
+        assert point[0] == 1.5
+        assert point[1] == 1.5
 
     def test_get_waypoint_look_ahead_average_point_curve(self):
         params = RewardFunctionParams()
@@ -112,5 +112,5 @@ class TestRewardFunction:
         point: [float, float] = get_waypoint_look_ahead_average_point(closest_waypoints=params.closest_waypoints,
                                                                            waypoints=params.waypoints)
 
-        assert point[0] == 2.5
-        assert point[1] == 1.25
+        assert point[0] == 1.5
+        assert point[1] == 2.0

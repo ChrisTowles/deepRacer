@@ -59,3 +59,11 @@ also we are using heading but not the steering angle.
 
 has some look ahead for the waypoints 
 
+### calc-heading-v3
+
+fixed something, not remember
+
+### calc-heading-v4 
+
+- less lookahead = 3
+
