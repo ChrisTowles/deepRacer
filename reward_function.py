@@ -47,24 +47,36 @@ def reward_function(params) -> float:
     closest_waypoints = params['closest_waypoints']
     heading = params['heading']
 
-    direction_diff, reward = calc_reward_from_wayspoint_vs_heading(closest_waypoints, heading, waypoints)
+    direction_diff, waypoint_reward = calc_reward_from_waypoint_vs_heading(waypoints=waypoints,
+                                                                           closest_waypoints=closest_waypoints,
+                                                                           heading=heading)
+
+    speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed)
+
+
+    # final reward
+    final_reward = speed_reward * waypoint_reward
+
+    return final_reward
+
+
+def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float) -> float:
+    # Initialize the reward with typical value
+    local_reward = 1.0
 
     # Set the speed threshold based your action space
     SPEED_THRESHOLD = 1.0
     if not all_wheels_on_track:
         # Penalize if the car goes off track
-        reward = 1e-3  # off track = bad
+        local_reward = 1e-3  # off track = bad
     elif speed < SPEED_THRESHOLD:
         # Penalize if the car goes too slow
-        reward *= 0.6
-    # else:
-    # High reward if the car stays on track and goes fast
-    # leave reward high
+        local_reward *= 0.6
 
-    return float(reward)
+    return local_reward
 
 
-def calc_reward_from_wayspoint_vs_heading(closest_waypoints, heading: float, waypoints):
+def calc_reward_from_waypoint_vs_heading(closest_waypoints, heading: float, waypoints):
     # Initialize the reward with typical value
     local_reward = 1.0
     # Calculate the direction of the center line based on the closest waypoints
@@ -82,11 +94,9 @@ def calc_reward_from_wayspoint_vs_heading(closest_waypoints, heading: float, way
     if direction_diff > 180:
         direction_diff = 360 - direction_diff
 
-
     # Penalize the reward if the difference is too large
     DIRECTION_THRESHOLD: float = 10.0
     if direction_diff > DIRECTION_THRESHOLD:
         local_reward *= 0.5
 
     return direction_diff, local_reward
-
