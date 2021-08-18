@@ -11,6 +11,8 @@ class RewardFunctionParams(object):
         self.steering_angle: float = 0.0  # agent's steering angle in degrees
         self.progress: float = 0.0  # percentage of track completed
         self.steps: int = 0  # number steps completed
+        self.x: float = 0.0
+        self.y: float = 0.0
 
     def to_dict(self) -> Dict:
         return vars(self)

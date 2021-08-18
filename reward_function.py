@@ -41,26 +41,27 @@ def reward_function(params) -> float:
     # Read input parameters
     all_wheels_on_track: bool = params['all_wheels_on_track']
     speed = params['speed']
+    current_point = [params['x'], params['y']]
     abs_steering = abs(params['steering_angle'])
 
     # Read input variables
     waypoints = params['waypoints']
     closest_waypoints = params['closest_waypoints']
     heading = params['heading']
-
-    #
     steering_angle = params['steering_angle']
 
-    direction_diff, waypoint_reward = calc_reward_from_waypoint_vs_heading(waypoints=waypoints,
-                                                                           closest_waypoints=closest_waypoints,
-                                                                           heading=heading)
+    waypoint_calc_response = calc_reward_from_waypoint_vs_heading(waypoints=waypoints,
+                                                                  closest_waypoints=closest_waypoints,
+                                                                  heading=heading,
+                                                                  steering_angle=steering_angle,
+                                                                  current_point=current_point)
 
     speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed)
 
     steering_reward = calc_abs_stearing(steering_angle=steering_angle)
 
     # final reward
-    final_reward = speed_reward * waypoint_reward * steering_reward
+    final_reward = speed_reward * waypoint_calc_response.reward * steering_reward
 
     return final_reward
 
@@ -95,33 +96,39 @@ def calc_abs_stearing(steering_angle: float) -> float:
     return local_reward
 
 
+class WaypointCalcResult:
+    def __init__(self, needed_heading: float, delta_in_steering: float, delta_in_heading: float, reward: float):
+        self.needed_heading: float = round(needed_heading, 4)
+        self.delta_in_steering: float = round(delta_in_steering, 4)
+        self.delta_in_heading: float = round(delta_in_heading, 4)
+        self.reward: float = reward
 
-def calc_reward_from_waypoint_vs_heading(closest_waypoints, heading: float, waypoints):
+
+def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: float, steering_angle: float,
+                                         current_point) -> WaypointCalcResult:
     # Initialize the reward with typical value
     local_reward = 1.0
     # Calculate the direction of the center line based on the closest waypoints
     # from https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html#reward-function-input-closest_waypoints
 
     next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints)
+    # prev_point = waypoints[closest_waypoints[0]]
 
-    prev_point = waypoints[closest_waypoints[0]]
+    # track_direction = get_angle_between_points(next_point=next_avg_point, prev_point=prev_point)
+    needed_heading = get_angle_between_points(next_avg_point=next_avg_point, prev_point=current_point)
+    delta_in_heading = needed_heading - heading
 
-    # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
-    track_direction = math.atan2(next_avg_point[1] - prev_point[1], next_avg_point[0] - prev_point[0])
-    # Convert to degree
-    track_direction = math.degrees(track_direction)
+    # what if already steering, lets see diff from our heading.
+    delta_in_steering = abs(steering_angle - delta_in_heading)
 
-    # Calculate the difference between the track direction and the heading direction of the car
-    direction_diff = abs(track_direction - heading)
-    if direction_diff > 180:
-        direction_diff = 360 - direction_diff
+    if abs(delta_in_steering) > 40:
+        local_reward = 1e-3  # if the diff in our steering is that much we already lost.
+    else:
+        local_reward = 1 - abs(delta_in_steering)
 
-    # Penalize the reward if the difference is too large
-    DIRECTION_THRESHOLD: float = 10.0
-    if direction_diff > DIRECTION_THRESHOLD:
-        local_reward = 0.5
-
-    return direction_diff, local_reward
+    # made this an object so i can test the steps
+    return WaypointCalcResult(needed_heading=needed_heading, delta_in_heading=delta_in_heading,
+                              delta_in_steering=delta_in_steering, reward=local_reward)
 
 
 def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints):
@@ -129,3 +136,13 @@ def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints):
     next_few_points = np.array(waypoints[closest_waypoints[1]:NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD])
     next_avg_point = np.average(next_few_points, axis=0)
     return next_avg_point
+
+
+def get_angle_between_points(prev_point, next_avg_point):
+    # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
+    track_direction = math.atan2(next_avg_point[1] - prev_point[1], next_avg_point[0] - prev_point[0])
+    # Convert to degree
+    track_direction = math.degrees(track_direction)
+
+    return track_direction
+
