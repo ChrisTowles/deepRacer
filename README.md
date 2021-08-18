@@ -40,3 +40,21 @@ using local env i already have setup.
 ```shell
 pyenv activate idm-integration
 ```
+
+
+## Thoughts on models.
+
+### calc-heading-v1 
+
+so just turning to nearest waypoint isn't great, it bounces back and fourth on the track and then on turns runs fast past to the point which takes it off the track.
+
+so after 42 mins.
+
+so how to look ahead. also is the closest waypoint the next waypoint?
+
+also we are using heading but not the steering angle.
+
+### 
+
+
+

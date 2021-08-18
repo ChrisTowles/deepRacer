@@ -41,11 +41,15 @@ def reward_function(params) -> float:
     # Read input parameters
     all_wheels_on_track: bool = params['all_wheels_on_track']
     speed = params['speed']
+    abs_steering = abs(params['steering_angle'])
 
     # Read input variables
     waypoints = params['waypoints']
     closest_waypoints = params['closest_waypoints']
     heading = params['heading']
+
+    #
+    steering_angle = params['steering_angle']
 
     direction_diff, waypoint_reward = calc_reward_from_waypoint_vs_heading(waypoints=waypoints,
                                                                            closest_waypoints=closest_waypoints,
@@ -53,9 +57,10 @@ def reward_function(params) -> float:
 
     speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed)
 
+    steering_reward = calc_abs_stearing(steering_angle=steering_angle)
 
     # final reward
-    final_reward = speed_reward * waypoint_reward
+    final_reward = speed_reward * waypoint_reward * steering_reward
 
     return final_reward
 
@@ -74,6 +79,21 @@ def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float) -> f
         local_reward *= 0.6
 
     return local_reward
+
+
+def calc_abs_stearing(steering_angle: float) -> float:
+    # Initialize the reward with typical value
+    local_reward = 1.0
+
+    abs_steering = abs(steering_angle)
+
+    # Penalize if car steer too much to prevent zigzag
+    ABS_STEERING_THRESHOLD = 15.0
+    if abs_steering > ABS_STEERING_THRESHOLD:
+        local_reward *= 0.8
+
+    return local_reward
+
 
 
 def calc_reward_from_waypoint_vs_heading(closest_waypoints, heading: float, waypoints):
@@ -97,6 +117,6 @@ def calc_reward_from_waypoint_vs_heading(closest_waypoints, heading: float, wayp
     # Penalize the reward if the difference is too large
     DIRECTION_THRESHOLD: float = 10.0
     if direction_diff > DIRECTION_THRESHOLD:
-        local_reward *= 0.5
+        local_reward = 0.5
 
     return direction_diff, local_reward
