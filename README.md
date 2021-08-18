@@ -55,7 +55,7 @@ is this whats causing fast slow, fast slow?
 
 also we are using heading but not the steering angle.
 
-### 
+### calc-heading-v2 
 
-
+has some look ahead for the waypoints 
 

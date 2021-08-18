@@ -5,7 +5,7 @@ class RewardFunctionParams(object):
     def __init__(self):
         self.speed: float = 0.0
         self.all_wheels_on_track: bool = True
-        self.waypoints: List[Tuple[float, float]] = [(0.0, 0.0)]
+        self.waypoints: List[List[float]] = [[0.0, 0.0]]
         self.closest_waypoints: List[int] = [0, 0]
         self.heading: float = 0.0
         self.steering_angle: float = 0.0  # agent's steering angle in degrees
