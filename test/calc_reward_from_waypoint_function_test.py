@@ -1,7 +1,6 @@
 import pytest
 
-from reward_function import reward_function, calc_reward_from_waypoint_vs_heading, \
-    get_waypoint_look_ahead_average_point, WaypointCalcResult
+from reward_function import calc_reward_from_waypoint_vs_heading,  WaypointCalcResult
 from reward_function_params import RewardFunctionParams
 
 

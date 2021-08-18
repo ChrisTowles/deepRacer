@@ -80,7 +80,8 @@ class TestRewardFunction:
         params.x = 0,
         params.y = 0
         point: [float, float] = get_waypoint_look_ahead_average_point(closest_waypoints=params.closest_waypoints,
-                                                                           waypoints=params.waypoints)
+                                                                      waypoints=params.waypoints,
+                                                                      lookahead_by=3)
 
         assert point[0] == 0.0
         assert point[1] == 1.5
@@ -90,7 +91,8 @@ class TestRewardFunction:
         params.waypoints = [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0]]
         params.closest_waypoints = [0, 1]
         point: [float, float] = get_waypoint_look_ahead_average_point(closest_waypoints=params.closest_waypoints,
-                                                                           waypoints=params.waypoints)
+                                                                           waypoints=params.waypoints,
+                                                                      lookahead_by=3)
 
         assert point[0] == 1.5
         assert point[1] == 0.0
@@ -100,7 +102,8 @@ class TestRewardFunction:
         params.waypoints = [[0.0, 0.0], [1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0]]
         params.closest_waypoints = [0, 1]
         point: [float, float] = get_waypoint_look_ahead_average_point(closest_waypoints=params.closest_waypoints,
-                                                                           waypoints=params.waypoints)
+                                                                           waypoints=params.waypoints,
+                                                                      lookahead_by=3)
 
         assert point[0] == 1.5
         assert point[1] == 1.5
@@ -110,7 +113,8 @@ class TestRewardFunction:
         params.waypoints = [[0.0, 0.0], [1.0, 1.0], [2.0, 3.0], [3.0, 1.0], [4.0, 0.0]]
         params.closest_waypoints = [0, 1]
         point: [float, float] = get_waypoint_look_ahead_average_point(closest_waypoints=params.closest_waypoints,
-                                                                           waypoints=params.waypoints)
+                                                                           waypoints=params.waypoints,
+                                                                      lookahead_by=3)
 
         assert point[0] == 1.5
         assert point[1] == 2.0

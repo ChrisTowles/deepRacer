@@ -1,6 +1,6 @@
 # Deep Racer
 
-Created repo as part of GE Session on 08-17-2021
+Created repo as part of GE Session on 08-17-2021 by Chris Towles.
 
 Docs on reward function
 <https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html>
@@ -46,6 +46,7 @@ pyenv activate idm-integration
 
 ### calc-heading-v1 
 
+**result:**
 so just turning to nearest waypoint isn't great, it bounces back and fourth on the track and then on turns runs fast past to the point which takes it off the track.
 
 so after 42 mins.
@@ -61,9 +62,19 @@ has some look ahead for the waypoints
 
 ### calc-heading-v3
 
-fixed something, not remember
+fixed something, don't remember what remember
 
 ### calc-heading-v4 
 
 - less lookahead = 3
+
+### calc-heading-v5
+
+remove calc_abs_steering for compare.
+
+**result:** Failure, think i really need a more granular way to reward turn amount and to slow down for turns.
+think I need to add the center line example as current approach is lacking.
+
+model isn't really learning.
+
 

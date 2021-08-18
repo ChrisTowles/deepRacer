@@ -56,10 +56,10 @@ def reward_function(params) -> float:
 
     speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed)
 
-    steering_reward = calc_abs_steering(steering_angle=steering_angle)
+    # steering_reward = calc_abs_steering(steering_angle=steering_angle)
 
     # final reward
-    final_reward = speed_reward * waypoint_calc_response.reward * steering_reward
+    final_reward = speed_reward * waypoint_calc_response.reward  # * steering_reward
 
     return final_reward
 
@@ -109,7 +109,7 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
     # Calculate the direction of the center line based on the closest waypoints
     # from https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html#reward-function-input-closest_waypoints
 
-    next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints)
+    next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by=3)
     # prev_point = waypoints[closest_waypoints[0]]
 
     # track_direction = get_angle_between_points(next_point=next_avg_point, prev_point=prev_point)
@@ -133,9 +133,9 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
                               delta_in_steering=delta_in_steering, reward=local_reward)
 
 
-def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints):
-    NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD = 3
-    next_few_points = waypoints[closest_waypoints[1]:NUMBER_OF_WAYPOINTS_TO_LOOKAHEAD]
+def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by: int):
+
+    next_few_points = waypoints[closest_waypoints[1]:lookahead_by]
 
     # took out due to numpy issue
     # next_avg_point = numpy.average(numpy.array(next_few_points), axis=0)
