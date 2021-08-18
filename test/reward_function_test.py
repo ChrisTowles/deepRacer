@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pytest
 
-from reward_function import reward_function, calc_wheels_on_track_and_speed, calc_abs_stearing, \
+from reward_function import reward_function, calc_wheels_on_track_and_speed, calc_abs_steering, \
     get_waypoint_look_ahead_average_point
 from reward_function_params import RewardFunctionParams
 
@@ -47,19 +47,19 @@ class TestRewardFunction:
         assert reward == 0.001
 
 
-    def test_reward_function_calc_abs_stearing_to_much(self):
+    def test_reward_function_calc_abs_steering_to_much(self):
         params = RewardFunctionParams()
 
         params.steering_angle = -20
-        reward: float = calc_abs_stearing(steering_angle=params.steering_angle)
+        reward: float = calc_abs_steering(steering_angle=params.steering_angle)
         assert reward == 0.800
 
 
-    def test_reward_function_calc_abs_stearing_stright(self):
+    def test_reward_function_calc_abs_steering_stright(self):
         params = RewardFunctionParams()
 
         params.steering_angle = 0
-        reward: float = calc_abs_stearing(steering_angle=params.steering_angle)
+        reward: float = calc_abs_steering(steering_angle=params.steering_angle)
         assert reward == 1.0
 
 

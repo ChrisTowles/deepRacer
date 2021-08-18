@@ -58,7 +58,7 @@ def reward_function(params) -> float:
 
     speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed)
 
-    steering_reward = calc_abs_stearing(steering_angle=steering_angle)
+    steering_reward = calc_abs_steering(steering_angle=steering_angle)
 
     # final reward
     final_reward = speed_reward * waypoint_calc_response.reward * steering_reward
@@ -82,7 +82,7 @@ def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float) -> f
     return local_reward
 
 
-def calc_abs_stearing(steering_angle: float) -> float:
+def calc_abs_steering(steering_angle: float) -> float:
     # Initialize the reward with typical value
     local_reward = 1.0
 
