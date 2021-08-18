@@ -121,10 +121,15 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
     # what if already steering, lets see diff from our heading.
     delta_in_steering = abs(steering_angle - delta_in_heading)
 
+    MAX_STEERING_DELTA_ALLOWED_IN_DEGREES = 40
     if abs(delta_in_steering) > 40:
         local_reward = 1e-3  # if the diff in our steering is that much we already lost.
     else:
-        local_reward = 1 - abs(delta_in_steering)
+        # set the reward to get worse as we get away from zero
+        # 1-abs(5/40) => 1-0.125 => 8.75
+        # 1-abs(20/40) => 1-0.500 => 5.50
+
+        local_reward = 1 - abs(delta_in_steering / MAX_STEERING_DELTA_ALLOWED_IN_DEGREES)
 
     # made this an object so i can test the steps
     return WaypointCalcResult(needed_heading=needed_heading, delta_in_heading=delta_in_heading,
