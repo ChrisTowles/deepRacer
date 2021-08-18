@@ -13,6 +13,8 @@ class RewardFunctionParams(object):
         self.steps: int = 0  # number steps completed
         self.x: float = 0.0
         self.y: float = 0.0
+        self.track_width: float = 0.0
+        self.distance_from_center: float = 0.0
 
     def to_dict(self) -> Dict:
         return vars(self)

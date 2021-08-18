@@ -41,6 +41,8 @@ def reward_function(params) -> float:
     all_wheels_on_track: bool = params['all_wheels_on_track']
     speed = params['speed']
     current_point = [float(params['x']), float(params['y'])]
+    distance_from_center = params['distance_from_center']
+    track_width = params['track_width']
 
     # Read input variables
     waypoints = params['waypoints']
@@ -58,10 +60,16 @@ def reward_function(params) -> float:
 
     # steering_reward = calc_abs_steering(steering_angle=steering_angle)
 
-    # final reward
-    final_reward = speed_reward * waypoint_calc_response.reward  # * steering_reward
+    center_line_reward = calc_center_line(distance_from_center=distance_from_center, track_width=track_width)
 
-    return final_reward
+
+    final_reward = (waypoint_calc_response.reward * 0.2) * (center_line_reward * 0.8)  # most important to stay on track
+    final_reward = final_reward * speed_reward
+
+    if final_reward < 1e-3:
+        final_reward = 1e-3
+
+    return round(final_reward, 4)
 
 
 def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float) -> float:
@@ -134,7 +142,6 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
 
 
 def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by: int):
-
     next_few_points = waypoints[closest_waypoints[1]:lookahead_by]
 
     # took out due to numpy issue
@@ -160,3 +167,27 @@ def get_angle_between_points(prev_point, next_avg_point):
     track_direction = math.degrees(track_direction)
 
     return track_direction
+
+
+def calc_center_line(distance_from_center: float, track_width: float) -> float:
+    '''
+        example 
+        https://github.com/aws-samples/aws-deepracer-workshops/blob/master/Advanced%20workshops/reInvent2019-400/customize/reward_advanced.py
+
+    '''
+    local_reward = 1e-3
+
+    # Calculate 3 markers that are at varying distances away from the center line
+    marker_1 = 0.1 * track_width
+    marker_2 = 0.25 * track_width
+    marker_3 = 0.5 * track_width
+
+    # Give higher reward if the car is closer to center line and vice versa
+    if distance_from_center <= marker_1:
+        local_reward = 1.0
+    elif distance_from_center <= marker_2:
+        local_reward = 0.5
+    elif distance_from_center <= marker_3:
+        local_reward = 0.1
+
+    return local_reward

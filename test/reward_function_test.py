@@ -3,7 +3,7 @@
 import pytest
 
 from reward_function import reward_function, calc_wheels_on_track_and_speed, calc_abs_steering, \
-    get_waypoint_look_ahead_average_point, get_angle_between_points
+    get_waypoint_look_ahead_average_point, get_angle_between_points, calc_center_line
 from reward_function_params import RewardFunctionParams
 
 
@@ -12,6 +12,7 @@ class TestRewardFunction:
     def test_reward_function_no_wheels_on_track(self):
         params = RewardFunctionParams()
         params.all_wheels_on_track = False
+
         reward: float = reward_function(params.to_dict())
         assert reward == 0.001
 
@@ -118,3 +119,30 @@ class TestRewardFunction:
 
         assert point[0] == 1.5
         assert point[1] == 2.0
+
+    def test_calc_center_line_near_center(self):
+        params = RewardFunctionParams()
+        params.distance_from_center = 1.0
+        params.track_width = 5.0
+        reward: float = calc_center_line(distance_from_center=params.distance_from_center,
+                                                                           track_width=params.track_width)
+
+        assert reward == 0.5
+
+    def test_calc_center_line_far_from_center(self):
+        params = RewardFunctionParams()
+        params.distance_from_center = 2.0
+        params.track_width = 2.0
+        reward: float = calc_center_line(distance_from_center=params.distance_from_center,
+                                                                           track_width=params.track_width)
+
+        assert reward == 1e-3
+
+    def test_calc_center_line_mid_from_center(self):
+        params = RewardFunctionParams()
+        params.distance_from_center = 0.0
+        params.track_width = 1.0
+        reward: float = calc_center_line(distance_from_center=params.distance_from_center,
+                                                                           track_width=params.track_width)
+
+        assert reward == 1.0
