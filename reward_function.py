@@ -42,20 +42,37 @@ def reward_function(params) -> float:
     all_wheels_on_track: bool = params['all_wheels_on_track']
     speed = params['speed']
 
-     # Read input variables
+    # Read input variables
     waypoints = params['waypoints']
     closest_waypoints = params['closest_waypoints']
     heading = params['heading']
 
-    # Initialize the reward with typical value
-    reward = 1.0
+    direction_diff, reward = calc_reward_from_wayspoint_vs_heading(closest_waypoints, heading, waypoints)
 
+    # Set the speed threshold based your action space
+    SPEED_THRESHOLD = 1.0
+    if not all_wheels_on_track:
+        # Penalize if the car goes off track
+        reward = 1e-3  # off track = bad
+    elif speed < SPEED_THRESHOLD:
+        # Penalize if the car goes too slow
+        reward *= 0.6
+    # else:
+    # High reward if the car stays on track and goes fast
+    # leave reward high
+
+    return float(reward)
+
+
+def calc_reward_from_wayspoint_vs_heading(closest_waypoints, heading: float, waypoints):
+    # Initialize the reward with typical value
+    local_reward = 1.0
     # Calculate the direction of the center line based on the closest waypoints
     # from https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html#reward-function-input-closest_waypoints
     next_point = waypoints[closest_waypoints[1]]
     prev_point = waypoints[closest_waypoints[0]]
-    
-     # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
+
+    # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
     track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
     # Convert to degree
     track_direction = math.degrees(track_direction)
@@ -65,28 +82,11 @@ def reward_function(params) -> float:
     if direction_diff > 180:
         direction_diff = 360 - direction_diff
 
+
     # Penalize the reward if the difference is too large
-    DIRECTION_THRESHOLD = 10.0
+    DIRECTION_THRESHOLD: float = 10.0
     if direction_diff > DIRECTION_THRESHOLD:
-        reward *= 0.5
+        local_reward *= 0.5
 
-    # Set the speed threshold based your action space
-    SPEED_THRESHOLD = 1.0
-    if not all_wheels_on_track:
-        # Penalize if the car goes off track
-        reward = 1e-3 # off track = bad
-    elif speed < SPEED_THRESHOLD:
-        # Penalize if the car goes too slow
-        reward *= 0.6
-    #else:
-        # High reward if the car stays on track and goes fast
-        # leave reward high
+    return direction_diff, local_reward
 
-    return float(reward)
-
-
-
-
-
-if __name__ == "__main__":
-  reward_function()

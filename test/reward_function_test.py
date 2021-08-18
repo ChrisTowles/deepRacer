@@ -1,6 +1,6 @@
 import pytest
 
-from reward_function import reward_function
+from reward_function import reward_function, calc_reward_from_wayspoint_vs_heading
 from reward_function_params import RewardFunctionParams
 
 
@@ -11,4 +11,3 @@ class TestRewardFunction:
         params.all_wheels_on_track = False
         reward: float = reward_function(params.to_dict())
         assert reward == 0.001
-
