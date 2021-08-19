@@ -14,7 +14,7 @@ class TestRewardFunction:
         params.all_wheels_on_track = False
 
         reward: float = reward_function(params.to_dict())
-        assert reward == 0.001
+        assert reward == 1 # 0.001
 
     def test_get_angle_between_points(self):
         angle = get_angle_between_points([0.0, 0.0], [0.0, 1.0])

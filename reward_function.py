@@ -63,9 +63,9 @@ def reward_function(params) -> float:
     center_line_reward = calc_center_line(distance_from_center=distance_from_center, track_width=track_width)
 
 
-    final_reward = (waypoint_calc_response.reward * 0.2) * (center_line_reward * 0.8)  # most important to stay on track
-    final_reward = final_reward * speed_reward
-
+    #final_reward = (waypoint_calc_response.reward * 0.2) * (center_line_reward * 0.8)  # most important to stay on track
+    #final_reward = final_reward * speed_reward
+    final_reward = center_line_reward
     if final_reward < 1e-3:
         final_reward = 1e-3
 
