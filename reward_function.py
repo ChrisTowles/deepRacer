@@ -54,34 +54,36 @@ def reward_function(params) -> float:
                                                                   closest_waypoints=closest_waypoints,
                                                                   heading=heading,
                                                                   steering_angle=steering_angle,
-                                                                  current_point=current_point)
+                                                                  current_point=current_point,
+                                                                  lookahead_by=20)
 
-    speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed)
-
-    # steering_reward = calc_abs_steering(steering_angle=steering_angle)
+    speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed, delta_in_heading=waypoint_calc_response.delta_in_heading)
+    #steering_reward = calc_abs_steering(steering_angle=steering_angle)
 
     center_line_reward = calc_center_line(distance_from_center=distance_from_center, track_width=track_width)
 
+    # should help go faster in stright ways
+    final_reward = center_line_reward * speed_reward
 
-    #final_reward = (waypoint_calc_response.reward * 0.2) * (center_line_reward * 0.8)  # most important to stay on track
-    #final_reward = final_reward * speed_reward
-    final_reward = center_line_reward
+
+    # helps with unit tests
     if final_reward < 1e-3:
         final_reward = 1e-3
 
     return round(final_reward, 4)
 
 
-def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float) -> float:
+def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float, delta_in_heading: float) -> float:
     # Initialize the reward with typical value
     local_reward = 1.0
 
     # Set the speed threshold based your action space
-    SPEED_THRESHOLD = 1.0
+    SPEED_THRESHOLD = 2.5
+    DELTA_IN_HEADING_THRESHOLD = 10
     if not all_wheels_on_track:
         # Penalize if the car goes off track
         local_reward = 1e-3  # off track = bad
-    elif speed < SPEED_THRESHOLD:
+    elif DELTA_IN_HEADING_THRESHOLD > delta_in_heading and speed < SPEED_THRESHOLD:
         # Penalize if the car goes too slow
         local_reward *= 0.6
 
@@ -109,14 +111,16 @@ class WaypointCalcResult:
         self.delta_in_heading: float = round(delta_in_heading, 4)
         self.reward: float = round(reward, 4)
 
+
 def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: float, steering_angle: float,
-                                         current_point) -> WaypointCalcResult:
+                                         current_point,
+                                         lookahead_by: int = 3) -> WaypointCalcResult:
     # Initialize the reward with typical value
     local_reward = 1.0
     # Calculate the direction of the center line based on the closest waypoints
     # from https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html#reward-function-input-closest_waypoints
 
-    next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by=3)
+    next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by=lookahead_by)
     # prev_point = waypoints[closest_waypoints[0]]
 
     # track_direction = get_angle_between_points(next_point=next_avg_point, prev_point=prev_point)
