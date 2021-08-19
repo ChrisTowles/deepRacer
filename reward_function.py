@@ -107,8 +107,7 @@ class WaypointCalcResult:
         self.needed_heading: float = round(needed_heading, 4)
         self.delta_in_steering: float = round(delta_in_steering, 4)
         self.delta_in_heading: float = round(delta_in_heading, 4)
-        self.reward: float = reward
-
+        self.reward: float = round(reward, 4)
 
 def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: float, steering_angle: float,
                                          current_point) -> WaypointCalcResult:
@@ -123,11 +122,10 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
     # track_direction = get_angle_between_points(next_point=next_avg_point, prev_point=prev_point)
     needed_heading = get_angle_between_points(next_avg_point=next_avg_point, prev_point=current_point)
     delta_in_heading = needed_heading - heading
-
     # what if already steering, lets see diff from our heading.
     delta_in_steering = abs(steering_angle - delta_in_heading)
 
-    MAX_STEERING_DELTA_ALLOWED_IN_DEGREES = 40
+    MAX_STEERING_DELTA_ALLOWED_IN_DEGREES = 30
     if abs(delta_in_steering) > MAX_STEERING_DELTA_ALLOWED_IN_DEGREES:
         local_reward = 1e-3  # if the diff in our steering is that much we already lost.
     else:
