@@ -63,7 +63,7 @@ def reward_function(params) -> float:
     # center_line_reward = calc_center_line(distance_from_center=distance_from_center, track_width=track_width)
 
     # should help go faster in straight ways
-    final_reward = waypoint_calc_response.reward * speed_reward
+    final_reward = waypoint_calc_response.reward
 
     # reward it for doing good
     if progress == 100:
