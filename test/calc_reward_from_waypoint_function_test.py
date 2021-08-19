@@ -37,9 +37,9 @@ class TestRewardFunction:
                                                                           steering_angle=params.steering_angle,
                                                                           current_point=[params.x, params.y])
 
-        assert result.needed_heading == 63.4349
-        assert result.delta_in_heading == 63.4349
-        assert result.delta_in_steering == 63.4349
+        assert result.needed_heading == 45.0
+        assert result.delta_in_heading == 45
+        assert result.delta_in_steering == 45
         assert result.reward == 0.001
 
     def test_calc_reward_from_waypoints_vs_heading_on_x_axis(self):
@@ -79,7 +79,7 @@ class TestRewardFunction:
         assert result.needed_heading == 45
         assert result.delta_in_heading == 15
         assert result.delta_in_steering == 0
-        assert result.reward == 1.0
+        assert result.reward == 0.625
 
     def test_calc_reward_from_waypoints_vs_heading_steering_almost_toward_heading(self):
         params = RewardFunctionParams()
@@ -119,13 +119,13 @@ class TestRewardFunction:
         assert result.needed_heading == 45
         assert result.delta_in_heading == 15
         assert result.delta_in_steering == 5
-        assert result.reward == 0.8333
+        assert result.reward == 0.625
 
     def test_calc_reward_from_waypoints_vs_heading_steering_almost_toward_heading_but_worse(self):
         params = RewardFunctionParams()
         params.waypoints = [[0.0, 0.0], [1.0, 1.0], [2.0, 2.0], [3.0, 3.0]]
         params.closest_waypoints = [0, 1]
-        params.heading = 20
+        params.heading = 30
         params.steering_angle = 10
         params.x = 0.0
         params.y = 0.0
@@ -137,15 +137,15 @@ class TestRewardFunction:
             current_point=[params.x, params.y])
 
         assert result.needed_heading == 45
-        assert result.delta_in_heading == 25
-        assert result.delta_in_steering == 15
-        assert result.reward == 0.5
+        assert result.delta_in_heading == 15
+        assert result.delta_in_steering == 5
+        assert result.reward == 0.625
 
     def test_calc_reward_from_waypoints_vs_heading_steering_almost_toward_heading_up_and_left(self):
         params = RewardFunctionParams()
         params.waypoints = [[0.0, 0.0], [-1.0, 1.0], [-2.0, 2.0], [-3.0, 3.0]]
         params.closest_waypoints = [0, 1]
-        params.heading = 110
+        params.heading = 111
         params.steering_angle = 18
         params.x = 0.0
         params.y = 0.0
@@ -157,17 +157,17 @@ class TestRewardFunction:
             current_point=[params.x, params.y])
 
         assert result.needed_heading == 135
-        assert result.delta_in_heading == 25
-        assert result.delta_in_steering == 7.0
-        assert result.reward == 0.7667
+        assert result.delta_in_heading == 24
+        assert result.delta_in_steering == 6.0
+        assert result.reward == 0.4
 
 
     def test_calc_reward_from_waypoints_vs_heading_steering_almost_toward_heading_but_over_corrected(self):
         params = RewardFunctionParams()
         params.waypoints = [[0.0, 0.0], [1.0, 1.0], [2.0, 2.0], [3.0, 3.0]]
         params.closest_waypoints = [0, 1]
-        params.heading = 20
-        params.steering_angle = 20
+        params.heading = 40
+        params.steering_angle = 10
         params.x = 0.0
         params.y = 0.0
         result: WaypointCalcResult = calc_reward_from_waypoint_vs_heading(
@@ -178,9 +178,9 @@ class TestRewardFunction:
             current_point=[params.x, params.y])
 
         assert result.needed_heading == 45
-        assert result.delta_in_heading == 25
+        assert result.delta_in_heading == 5
         assert result.delta_in_steering == 5
-        assert result.reward == 0.8333
+        assert result.reward == 1.0
 
 
     def test_calc_reward_from_waypoints_vs_heading_steering_almost_toward_heading_up_and_left_over_steer(self):
@@ -201,4 +201,4 @@ class TestRewardFunction:
         assert result.needed_heading == 135
         assert result.delta_in_heading == -5
         assert result.delta_in_steering == 25
-        assert result.reward == 0.1667
+        assert result.reward == 1.0

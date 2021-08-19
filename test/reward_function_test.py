@@ -12,9 +12,16 @@ class TestRewardFunction:
     def test_reward_function_no_wheels_on_track(self):
         params = RewardFunctionParams()
         params.all_wheels_on_track = False
+        reward: float = reward_function(params.to_dict())
+        assert reward == 0.001
+
+    def test_reward_function_progress_100(self):
+        params = RewardFunctionParams()
+        params.progress = 100
+        params.all_wheels_on_track = False
 
         reward: float = reward_function(params.to_dict())
-        assert reward == 1e-3
+        assert reward == 100.001
 
     def test_get_angle_between_points(self):
         angle = get_angle_between_points([0.0, 0.0], [0.0, 1.0])
@@ -31,7 +38,7 @@ class TestRewardFunction:
     def test_reward_function_no_wheels_on_track_to_slow(self):
         params = RewardFunctionParams()
         params.all_wheels_on_track = True
-        params.speed = 1.0
+        params.speed = 0.8
         reward: float = calc_wheels_on_track_and_speed(all_wheels_on_track=params.all_wheels_on_track,
                                                        speed=params.speed,
                                                        delta_in_heading=0)
@@ -59,11 +66,11 @@ class TestRewardFunction:
     def test_reward_function_no_wheels_on_track_fast_enough(self):
         params = RewardFunctionParams()
         params.all_wheels_on_track = True
-        params.speed = 2
+        params.speed = 1.5
         reward: float = calc_wheels_on_track_and_speed(all_wheels_on_track=params.all_wheels_on_track,
                                                        speed=params.speed,
                                                        delta_in_heading=0)
-        assert reward == 0.6
+        assert reward == 1.0
 
     def test_reward_function_no_wheels_on_track_off_track_and_slow(self):
         params = RewardFunctionParams()

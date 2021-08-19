@@ -43,6 +43,7 @@ def reward_function(params) -> float:
     current_point = [float(params['x']), float(params['y'])]
     distance_from_center = params['distance_from_center']
     track_width = params['track_width']
+    progress: float = params['progress']
 
     # Read input variables
     waypoints = params['waypoints']
@@ -55,16 +56,18 @@ def reward_function(params) -> float:
                                                                   heading=heading,
                                                                   steering_angle=steering_angle,
                                                                   current_point=current_point,
-                                                                  lookahead_by=20)
+                                                                  lookahead_by=1)
 
     speed_reward = calc_wheels_on_track_and_speed(all_wheels_on_track=all_wheels_on_track, speed=speed, delta_in_heading=waypoint_calc_response.delta_in_heading)
-    #steering_reward = calc_abs_steering(steering_angle=steering_angle)
+    # steering_reward = calc_abs_steering(steering_angle=steering_angle)
+    # center_line_reward = calc_center_line(distance_from_center=distance_from_center, track_width=track_width)
 
-    center_line_reward = calc_center_line(distance_from_center=distance_from_center, track_width=track_width)
+    # should help go faster in straight ways
+    final_reward = waypoint_calc_response.reward * speed_reward
 
-    # should help go faster in stright ways
-    final_reward = center_line_reward * speed_reward
-
+    # reward it for doing good
+    if progress == 100:
+        final_reward += 100
 
     # helps with unit tests
     if final_reward < 1e-3:
@@ -78,7 +81,7 @@ def calc_wheels_on_track_and_speed(all_wheels_on_track: bool, speed: float, delt
     local_reward = 1.0
 
     # Set the speed threshold based your action space
-    SPEED_THRESHOLD = 2.5
+    SPEED_THRESHOLD = 1.5
     DELTA_IN_HEADING_THRESHOLD = 10
     if not all_wheels_on_track:
         # Penalize if the car goes off track
@@ -120,27 +123,35 @@ def calc_reward_from_waypoint_vs_heading(waypoints, closest_waypoints, heading: 
     # Calculate the direction of the center line based on the closest waypoints
     # from https://docs.aws.amazon.com/deepracer/latest/developerguide/deepracer-reward-function-input.html#reward-function-input-closest_waypoints
 
-    next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by=lookahead_by)
-    # prev_point = waypoints[closest_waypoints[0]]
+    # next_avg_point = get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by=lookahead_by)
+    next_point = waypoints[closest_waypoints[1]]
+    prev_point = waypoints[closest_waypoints[0]]
 
     # track_direction = get_angle_between_points(next_point=next_avg_point, prev_point=prev_point)
-    needed_heading = get_angle_between_points(next_avg_point=next_avg_point, prev_point=current_point)
-    delta_in_heading = needed_heading - heading
+    track_heading = get_angle_between_points(next_avg_point=next_point, prev_point=prev_point)
+    delta_in_heading = track_heading - heading
     # what if already steering, lets see diff from our heading.
     delta_in_steering = abs(steering_angle - delta_in_heading)
 
-    MAX_STEERING_DELTA_ALLOWED_IN_DEGREES = 30
-    if abs(delta_in_steering) > MAX_STEERING_DELTA_ALLOWED_IN_DEGREES:
-        local_reward = 1e-3  # if the diff in our steering is that much we already lost.
-    else:
-        # set the reward to get worse as we get away from zero
-        # 1-abs(5/40) => 1-0.125 => 8.75
-        # 1-abs(20/40) => 1-0.500 => 5.50
-        local_reward = 1 - abs(delta_in_steering / MAX_STEERING_DELTA_ALLOWED_IN_DEGREES)
+    MIN_HEADING_DELTA_ALLOWED_IN_DEGREES = 10
+    MAX_HEADING_DELTA_ALLOWED_IN_DEGREES = 40
+
+    if abs(delta_in_heading) > MIN_HEADING_DELTA_ALLOWED_IN_DEGREES:
+
+        # if we are more than 40 % just give up.
+        if abs(delta_in_heading) >= MAX_HEADING_DELTA_ALLOWED_IN_DEGREES:
+            local_reward = 1e-3
+        else:
+            # set the reward to get worse as we get away from zero
+            # 1-abs(5/40) => 1-0.125 => 8.75
+            # 1-abs(20/40) => 1-0.500 => 5.50
+            local_reward = 1 - abs(delta_in_heading / MAX_HEADING_DELTA_ALLOWED_IN_DEGREES)
 
     # made this an object so i can test the steps
-    return WaypointCalcResult(needed_heading=needed_heading, delta_in_heading=delta_in_heading,
-                              delta_in_steering=delta_in_steering, reward=local_reward)
+    return WaypointCalcResult(needed_heading=track_heading,
+                              delta_in_heading=delta_in_heading,
+                              delta_in_steering=delta_in_steering,
+                              reward=local_reward)
 
 
 def get_waypoint_look_ahead_average_point(closest_waypoints, waypoints, lookahead_by: int):

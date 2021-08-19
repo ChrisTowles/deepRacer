@@ -15,6 +15,7 @@ class RewardFunctionParams(object):
         self.y: float = 0.0
         self.track_width: float = 0.0
         self.distance_from_center: float = 0.0
+        self.progress: float = 0.0
 
     def to_dict(self) -> Dict:
         return vars(self)
