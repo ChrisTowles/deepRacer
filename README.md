@@ -24,6 +24,7 @@ Reward function parameters
 
 Hot Rod Speedway
 
+
 ## Action list
 
 Trying to narrow down actions.
@@ -76,5 +77,4 @@ remove calc_abs_steering for compare.
 think I need to add the center line example as current approach is lacking.
 
 model isn't really learning.
-
 
